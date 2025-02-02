@@ -1,5 +1,5 @@
 'use client'
-import { cn } from "@/lib/utils"
+import { signup } from "@/app/auth/signup/actions"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,22 +10,33 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useActionState } from "react"
-import { signup } from "@/app/auth/signup/actions"
-import { ErrorMessage } from "./ui/error-label"
+import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
+import { useActionState, useEffect } from "react"
+import { ErrorMessage } from "./ui/error-label"
+import { useToast } from "@/hooks/use-toast"
 
 export function SignupForm({
   className,
   ...props
 }) {
-  const [state, action, pending] = useActionState(signup)
+  const [state, action, pending] = useActionState(signup);
+  const {toast} = useToast();
 
   // function handleSubmit(event) {
   //   event.preventDefault();
   //   const formData = new FormData(event.target);
   //   startTransition(() => action(formData));
   // }
+  useEffect(()=>{
+    if(state?.error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: state.error
+      })
+    }
+  }, [state?.error])
   return (
     (<div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -66,10 +77,6 @@ export function SignupForm({
                   <Input name="passwordcnf" id="password-cnf" type="password" required />
                   {state?.errors?.passwordcnf && <ErrorMessage>{state.errors.passwordcnf}</ErrorMessage>}
                 </div>
-                {
-                  state?.error &&
-                  <ErrorMessage className={'text-center'}>{state.error}</ErrorMessage>
-                }
                 <Button type="submit" className="w-full" disabled={pending}>
                   {
                     pending &&

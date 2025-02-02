@@ -6,6 +6,6 @@ import { cache } from "react";
 export const getUser = cache(async () => {
   const session = await verifySession();
 
-  const data = await db.select({ name: usersTable.name, email: usersTable.email }).from(usersTable).where(eq(usersTable.id, session.userId));
+  const data = await db.select({name: usersTable.name, email: usersTable.email }).from(usersTable).where(eq(usersTable.id, session.userId));
   return data[0];
 });

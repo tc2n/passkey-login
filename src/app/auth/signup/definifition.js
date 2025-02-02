@@ -6,10 +6,11 @@ export const SignupFormSchema = z
   .object({
     name: z.string().min(2, { message: "Must have atleast 2 characters" }),
     email: z.string().email(),
-    password: z
-      .string()
-      .min(8, { message: "Must have atleast 8 character" })
-      .regex(passwordValidation, { message: "At least one uppercase letter, one lowercase letter, one number and one special character" }),
+    // password: z
+    //   .string()
+    //   .min(8, { message: "Must have atleast 8 character" })
+    //   .regex(passwordValidation, { message: "At least one uppercase letter, one lowercase letter, one number and one special character" }),
+    password: z.string().min(8, {message: "Password Must be atlease 8 characters long"}),
     passwordcnf: z.string(),
   })
   .refine((data) => data.password === data.passwordcnf, {

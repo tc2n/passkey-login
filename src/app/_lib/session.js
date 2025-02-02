@@ -1,7 +1,7 @@
 import 'server-only'
 import { jwtVerify, SignJWT } from "jose";
-import { redirect } from "next/dist/server/api-utils";
 import { cookies } from "next/headers";
+import { redirect } from 'next/navigation';
 
 const key = new TextEncoder().encode(process.env.SESSION_SECRET);
 
@@ -43,12 +43,12 @@ export async function verifySession() {
   const cookie = (await cookies()).get(cookie.name)?.value;
   const session = await decrypt(cookie);
   if (!session?.userId) {
-    redirect("/login");
+    redirect("/auth/login");
   }
   return { userId: session.userId };
 }
 
 export async function deleteSession() {
   (await cookies()).delete(cookie.name);
-  redirect("/login");
+  redirect("/auth/login");
 }
