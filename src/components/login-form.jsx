@@ -41,7 +41,7 @@ export function LoginForm({
         description: state.error
       })
     }
-  }, [state?.error])
+  }, [state?.timestamp])
 
   return (
     (<div className={cn("flex flex-col gap-6", className)} {...props}>

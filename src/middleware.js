@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // USES EDGE RUNTIME
 export default async function middleware(request) {
   // 1. Check if route is protected
-  const protectedRoutes = ["/home"];
+  const protectedRoutes = ["/"];
   const currentPath = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.includes(currentPath);
 
