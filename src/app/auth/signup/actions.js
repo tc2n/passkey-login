@@ -1,6 +1,6 @@
 "use server";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { getFormData } from "@/utils/getFormData";
 import { SignupFormSchema } from "./definifition";
 import { db } from "@/db";

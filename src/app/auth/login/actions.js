@@ -4,9 +4,8 @@ import { createSession, deleteSession } from "@/app/_lib/session";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema";
 import { getFormData } from "@/utils/getFormData";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { timestamp } from "drizzle-orm/mysql-core";
 
 export async function login(state, formData) {
   // 1. Validate fields
