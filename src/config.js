@@ -1,6 +1,6 @@
 export const CONFIG = Object.freeze({
 	rpName: 'PasskeyLogin',
-	hostname: process.env.HOSTNAME,
+	hostname: process.env.HOSTNAME || 'localhost',
 	associatedOrigins: ['http://localhost:3000', 'https://5hmr318m-3000.inc1.devtunnels.ms'],
 	aaguids: {
 		'ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4': {

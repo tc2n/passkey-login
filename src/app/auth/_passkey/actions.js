@@ -45,6 +45,7 @@ export async function signInRequest() {
 			userVerification: 'preferred',
 		});
 
+		(await cookies()).delete('temp');
 		// Keep the challenge value in session
 		await setTempSession({ challenge: options.challenge });
 		return options;
@@ -61,6 +62,7 @@ export async function signInResponse(response) {
 	const { challenge: expectedChallenge } = await getTempSession();
 	const expectedOrigin = CONFIG.associatedOrigins;
 	const expectedRPID = CONFIG.hostname;
+	let userId;
 
 	try {
 		// Find the matching credential from the credential ID
@@ -105,11 +107,15 @@ export async function signInResponse(response) {
 		// Delete Challange from memory
 		(await cookies()).delete('temp');
 
-		await createSession(cred.user_id);
+		userId = cred.user_id;
 	} catch (e) {
 		(await cookies()).delete('temp');
 		return {
 			error: e.message || 'Unexpected Error Occurred',
 		};
+	}
+
+	if (userId) {
+		await createSession(userId);
 	}
 }

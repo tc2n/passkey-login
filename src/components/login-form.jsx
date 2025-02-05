@@ -45,7 +45,11 @@ export function LoginForm({ className, ...props }) {
 			const isConditionalUI = await isConditionalUISupported();
 			if (isConditionalUI) {
 				console.log('Conditional UI is supported');
-				await authenticateUser(true);
+				try{
+					await authenticateUser(true);
+				} catch(e){
+					console.error(e);
+				}
 			}
 		}
 		autoAuth();

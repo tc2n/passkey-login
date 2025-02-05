@@ -2,6 +2,7 @@ import 'server-only';
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 const key = new TextEncoder().encode(process.env.SESSION_SECRET);
 

@@ -1,11 +1,18 @@
 'use client';
 
 import { toast } from '@/hooks/use-toast';
-import { signInRequest, signInResponse } from './actions';
+import { deleteCred, signInRequest, signInResponse } from './actions';
 import { registerRequest, registerResponse } from './register';
+import { WebAuthnAbortService } from '@/lib/webAuthnAbortService';
+import { CONFIG } from '@/config';
+
+let controller;
 
 export async function registerCredential() {
 	if (typeof window === 'undefined') return;
+
+	if (controller) controller.abort();
+	controller = new AbortController();
 
 	//Fetch passkey Creation options from the server
 	const _options = await registerRequest();
@@ -23,7 +30,7 @@ export async function registerCredential() {
 	};
 
 	// Invoke the authenticator to create the credential
-	const cred = await navigator.credentials.create({ publicKey: options });
+	const cred = await navigator.credentials.create({ publicKey: options, signal: controller.signal });
 	const credential = cred.toJSON();
 
 	// Send the credential to the server for registration
@@ -56,7 +63,6 @@ export async function registerCredential() {
 
 export async function authenticateUser(conditional = false) {
 	if (typeof window === 'undefined') return;
-	const controller = new AbortController();
 
 	// Fetch passkey request optins from the server
 	const _options = await signInRequest();
@@ -75,7 +81,7 @@ export async function authenticateUser(conditional = false) {
 		publicKey: options,
 		// Request a Conditional UI
 		mediation: conditional ? 'conditional' : 'optional',
-		signal: controller.signal,
+		signal: WebAuthnAbortService.createNewAbortSignal(),
 	});
 
 	const credential = cred.toJSON();
@@ -108,4 +114,16 @@ export async function authenticateUser(conditional = false) {
 			});
 		}
 	}
+}
+
+export async function deleteCredential(credentialId) {
+	if (typeof window === 'undefined') return;
+	const res = await deleteCred(credentialId);
+	if (res?.error) {
+		throw new Error(res.error);
+	}
+	await PublicKeyCredential.signalUnknownCredential({
+		rpId: CONFIG.hostname,
+		credentialId,
+	});
 }

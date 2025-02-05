@@ -1,11 +1,10 @@
 'use client';
-import { deleteCred } from '@/app/auth/_passkey/actions';
+import { deleteCredential } from '@/app/auth/_passkey/client';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Edit2, Loader2 } from 'lucide-react';
+import { Loader2, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Trash } from 'lucide-react';
 
 export default function DeletePasskey({ credentialId }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
@@ -15,19 +14,11 @@ export default function DeletePasskey({ credentialId }) {
 	const handleDelete = async () => {
 		try {
 			setIsLoading(true);
-			const res = await deleteCred(credentialId);
-			if (!res?.error) {
-				setDialogOpen(false);
-				toast({
-					description: `Deleted Passkey`,
-				});
-			} else {
-				toast({
-					variant: 'destructive',
-					title: 'Error Deleting Passkey',
-					description: error || 'Unknown Error',
-				});
-			}
+			await deleteCredential(credentialId);
+			setDialogOpen(false);
+			toast({
+				description: `Deleted Passkey`,
+			});
 		} catch (e) {
 			console.error(e);
 			toast({
