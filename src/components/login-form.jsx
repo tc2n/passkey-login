@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { login } from '@/app/auth/login/actions';
 import { Loader2 } from 'lucide-react';
 import { Fingerprint } from 'lucide-react';
-import { isPublicKeyCredentialSupported } from '@/utils/isWebAuthnSupported';
+import { isConditionalUISupported, isPublicKeyCredentialSupported } from '@/utils/isWebAuthnSupported';
 import { authenticateUser } from '@/app/auth/_passkey/client';
 
 export function LoginForm({ className, ...props }) {
@@ -39,16 +39,31 @@ export function LoginForm({ className, ...props }) {
 		}
 	}, [state?.timestamp]);
 
+	useEffect(() => {
+		console.log('Checking for Conditional UI Support');
+		async function autoAuth() {
+			const isConditionalUI = await isConditionalUISupported();
+			if (isConditionalUI) {
+				console.log('Conditional UI is supported');
+				await authenticateUser(true);
+			}
+		}
+		autoAuth();
+	}, []);
+
 	const handlePasskeyLogin = async (conditional = false) => {
 		try {
 			setIsLoading(true);
 			await authenticateUser(conditional);
 		} catch (e) {
-			toast({
-				variant: 'destructive',
-				title: 'Error Logging in Using Passkey',
-				description: e.message || 'Please try using password',
-			});
+			if (e.message !== 'NEXT_REDIRECT') {
+				toast({
+					variant: 'destructive',
+					title: 'Error Logging in Using Passkey',
+					description: e.message || 'Please try using password',
+				});
+			}
+			console.error(e);
 		} finally {
 			setIsLoading(false);
 		}

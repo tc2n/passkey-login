@@ -50,7 +50,9 @@ export async function signInRequest() {
 		return options;
 	} catch (e) {
 		console.error(e);
-		throw e;
+		return {
+			error: e.message || 'Unexpected Error Occurred',
+		};
 	}
 }
 
@@ -104,9 +106,10 @@ export async function signInResponse(response) {
 		(await cookies()).delete('temp');
 
 		await createSession(cred.user_id);
-		return;
 	} catch (e) {
 		(await cookies()).delete('temp');
-		throw e;
+		return {
+			error: e.message || 'Unexpected Error Occurred',
+		};
 	}
 }

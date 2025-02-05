@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from '@/hooks/use-toast';
 import { signInRequest, signInResponse } from './actions';
 import { registerRequest, registerResponse } from './register';
 
@@ -8,6 +9,9 @@ export async function registerCredential() {
 
 	//Fetch passkey Creation options from the server
 	const _options = await registerRequest();
+	if (_options?.error) {
+		throw new Error(_options.error);
+	}
 
 	// Base64URL decode some values
 	const options = PublicKeyCredential.parseCreationOptionsFromJSON(_options);
@@ -25,6 +29,9 @@ export async function registerCredential() {
 	// Send the credential to the server for registration
 	try {
 		const result = registerResponse(credential);
+		if (result?.error) {
+			throw new Error(result.error);
+		}
 		return result;
 	} catch (e) {
 		// Detect if Credential was not found
@@ -53,7 +60,10 @@ export async function authenticateUser(conditional = false) {
 
 	// Fetch passkey request optins from the server
 	const _options = await signInRequest();
-	// debugger;
+
+	if (_options?.error) {
+		throw new Error(_options.error);
+	}
 
 	const options = PublicKeyCredential.parseRequestOptionsFromJSON(_options);
 
@@ -69,11 +79,13 @@ export async function authenticateUser(conditional = false) {
 	});
 
 	const credential = cred.toJSON();
-	console.log(credential);
 
 	try {
 		// Send the result to the server
 		const result = await signInResponse(credential);
+		if (result?.error) {
+			throw new Error(result.error);
+		}
 		return result;
 	} catch (e) {
 		if (e.status === 404 && PublicKeyCredential.signalUnknownCredential) {
@@ -88,6 +100,12 @@ export async function authenticateUser(conditional = false) {
 					console.error(e.message);
 				});
 		}
-		throw e;
+		if (e.message !== 'NEXT_REDIRECT') {
+			toast({
+				variant: 'destructive',
+				title: 'Error Logging in Using Passkey',
+				description: e.message || 'Please try using password',
+			});
+		}
 	}
 }

@@ -52,7 +52,9 @@ export async function registerRequest() {
 		return options;
 	} catch (e) {
 		console.error(e);
-		throw e;
+		return {
+			error: e.message || 'Unexpected Error Occurred',
+		};
 	}
 }
 
@@ -106,6 +108,8 @@ export async function registerResponse(credential) {
 		(await cookies()).delete('temp');
 	} catch (e) {
 		console.error(e);
-		throw e;
+		return {
+			error: e.message || 'Unexpected Error Occurred',
+		};
 	}
 }
