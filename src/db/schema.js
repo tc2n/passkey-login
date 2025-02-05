@@ -1,6 +1,6 @@
-import { date, foreignKey, int, json, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, date, foreignKey, int, json, mysqlTable, timestamp, varchar } from 'drizzle-orm/mysql-core';
 
-export const usersTable = mysqlTable("users", {
+export const usersTable = mysqlTable('users', {
   id: int().autoincrement().primaryKey(),
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
@@ -22,22 +22,23 @@ export const usersTable = mysqlTable("users", {
  **/
 
 export const credentialsTable = mysqlTable(
-  "credentials",
+  'credentials',
   {
-    id: int().autoincrement().primaryKey(),
+    id: varchar({ length: 255 }).primaryKey(),
     publicKey: varchar({ length: 255 }),
     name: varchar({ length: 255 }),
     transports: json(),
     registered: timestamp().defaultNow(),
     last_used: timestamp(),
+    be: boolean(),
     user_id: int(),
   },
-  (table) => {
+  table => {
     return {
       userReference: foreignKey({
         columns: [table.user_id],
         foreignColumns: [usersTable.id],
-        name: "credential_user",
+        name: 'credential_user',
       }),
     };
   }
