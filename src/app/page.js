@@ -8,6 +8,7 @@ import { getUserCredentials } from './_data/credentials';
 import { getUser } from './_data/user';
 import { Logout } from './auth/login/actions';
 import DeletePasskey from '@/components/delete-passkey';
+import { CONFIG } from '@/config';
 
 export default async function Home() {
 	const { name } = await getUser();
@@ -29,7 +30,23 @@ export default async function Home() {
 						<TableBody>
 							{credentials.map(cred => (
 								<TableRow key={cred.id}>
-									<TableCell>{cred.name}</TableCell>
+									<TableCell>
+										<div className='flex gap-4 items-center'>
+											{CONFIG.aaguids[cred.aaguid]?.icon_light ? (
+												<div className='p-2'>
+													<Image src={CONFIG.aaguids[cred.aaguid]?.icon_dark} height={35} width={35} alt="Authenticator Logo" />
+												</div>
+											) : (
+												<div className='text-4xl'>{cred?.name.charAt(0) || 'P'}</div>
+											)}
+											<div>
+												<span className='text-lg'>{cred.name}</span>
+												<div className='text-white/50'>
+													Created on: <span>{cred.registered?.toDateString()}</span>
+												</div>
+											</div>
+										</div>
+									</TableCell>
 									<TableCell>
 										<UpdatePasskey name={cred.name} credentialId={cred.id} />
 										<DeletePasskey credentialId={cred.id} />

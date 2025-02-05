@@ -1,8 +1,9 @@
 'use client';
 
-import { registerCredential } from '@/app/auth/_passkey/client-registration';
+import { registerCredential } from '@/app/auth/_passkey/client';
 import { useToast } from '@/hooks/use-toast';
 import { isWebAuthnSupported } from '@/utils/isWebAuthnSupported';
+import { Fingerprint } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -45,7 +46,7 @@ export function CreatePasskey() {
           onClick={handleRegisterCredential}
           disabled={isLoading}
         >
-          <Image className='dark:invert' src='/vercel.svg' alt='Vercel logomark' width={20} height={20} />
+          <Fingerprint />
           Create New Passkey
         </button>
       )}

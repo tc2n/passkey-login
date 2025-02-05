@@ -1,0 +1,93 @@
+'use client';
+
+import { signInRequest, signInResponse } from './actions';
+import { registerRequest, registerResponse } from './register';
+
+export async function registerCredential() {
+	if (typeof window === 'undefined') return;
+
+	//Fetch passkey Creation options from the server
+	const _options = await registerRequest();
+
+	// Base64URL decode some values
+	const options = PublicKeyCredential.parseCreationOptionsFromJSON(_options);
+
+	// Use platform authenticator and discoverable credential
+	options.authenticatorSelection = {
+		authenticatorAttachment: 'platform',
+		requireResidentKey: true,
+	};
+
+	// Invoke the authenticator to create the credential
+	const cred = await navigator.credentials.create({ publicKey: options });
+	const credential = cred.toJSON();
+
+	// Send the credential to the server for registration
+	try {
+		const result = registerResponse(credential);
+		return result;
+	} catch (e) {
+		// Detect if Credential was not found
+		if (PublicKeyCredential.signalUnknownCredential) {
+			await PublicKeyCredential.signalUnknownCredential({
+				rpId: options.rp.id,
+				credentialId: credential.id,
+			});
+			console.info('The passkey failed to register has been signaled to the password manager.');
+		}
+		if (e.name === 'InvalidStateError') {
+			throw new Error('A passkey already exists for this device.');
+		} else if (e.name === 'NotAllowedError') {
+			// User cancelled the request;
+			return;
+		} else {
+			console.error(e);
+			throw e;
+		}
+	}
+}
+
+export async function authenticateUser(conditional = false) {
+	if (typeof window === 'undefined') return;
+	const controller = new AbortController();
+
+	// Fetch passkey request optins from the server
+	const _options = await signInRequest();
+	// debugger;
+
+	const options = PublicKeyCredential.parseRequestOptionsFromJSON(_options);
+
+	// allowCredentials empty array invokes an account selector by discoverable credentials.
+	options.allowCredentials = [];
+
+	// Invoke Webauthn get
+	const cred = await navigator.credentials.get({
+		publicKey: options,
+		// Request a Conditional UI
+		mediation: conditional ? 'conditional' : 'optional',
+		signal: controller.signal,
+	});
+
+	const credential = cred.toJSON();
+	console.log(credential);
+
+	try {
+		// Send the result to the server
+		const result = await signInResponse(credential);
+		return result;
+	} catch (e) {
+		if (e.status === 404 && PublicKeyCredential.signalUnknownCredential) {
+			await PublicKeyCredential.signalUnknownCredential({
+				rpId: options.rpId,
+				credentialId: credential.id,
+			})
+				.then(() => {
+					console.info('Passkey Associated with Credential not found and have been signaled to the password manager');
+				})
+				.catch(e => {
+					console.error(e.message);
+				});
+		}
+		throw e;
+	}
+}

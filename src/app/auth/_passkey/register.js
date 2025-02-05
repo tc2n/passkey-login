@@ -2,7 +2,7 @@
 
 import { getUserCredentials, insertCredential } from '@/app/_data/credentials';
 import { getUser } from '@/app/_data/user';
-import { getTempSession, setTempSession, verifySession } from '@/app/_lib/session';
+import { getTempSession, setTempSession } from '@/app/_lib/session';
 import { CONFIG } from '@/config';
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server';
 import { isoBase64URL } from '@simplewebauthn/server/helpers';
@@ -11,7 +11,7 @@ import { userAgent } from 'next/server';
 
 const aaguids = [];
 
-export async function RegisterRequest() {
+export async function registerRequest() {
 	const user = await getUser();
 	try {
 		// Create 'excludeCredentials' from a list of stored credentials
@@ -46,7 +46,7 @@ export async function RegisterRequest() {
 		});
 
 		// Keep the challange value in a session
-		setTempSession({ challenge: options.challenge });
+		await setTempSession({ challenge: options.challenge });
 
 		// Respond with registration options to the client
 		return options;
@@ -91,7 +91,7 @@ export async function registerResponse(credential) {
 		const { device, browser, os } = userAgent(userAgentStructure);
 
 		// Determine the name of the authenticator from the AAGUID
-		const name = (Object.keys(aaguids).length > 0 && aaguids[aaguid]?.name) || `${device.model}, ${browser.name}:${browser.version}, ${os.name}:${os.version}`;
+		const name = (Object.keys(CONFIG.aaguids).length > 0 && CONFIG.aaguids[aaguid]?.name) || `${device.model}, ${browser.name}:${browser.version}, ${os.name}:${os.version}`;
 
 		// Store the registration information
 		await insertCredential({

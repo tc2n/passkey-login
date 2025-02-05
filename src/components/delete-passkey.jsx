@@ -15,8 +15,8 @@ export default function DeletePasskey({ credentialId }) {
 	const handleDelete = async () => {
 		try {
 			setIsLoading(true);
-			const { error } = await deleteCred(credentialId);
-			if (error === undefined) {
+			const res = await deleteCred(credentialId);
+			if (!res?.error) {
 				setDialogOpen(false);
 				toast({
 					description: `Deleted Passkey`,

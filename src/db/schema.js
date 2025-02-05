@@ -31,6 +31,7 @@ export const credentialsTable = mysqlTable(
     registered: timestamp().defaultNow(),
     last_used: timestamp(),
     be: boolean(),
+    aaguid: varchar({length: 48}),
     user_id: int(),
   },
   table => {
